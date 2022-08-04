@@ -1,6 +1,8 @@
 import { Component } from "@angular/core";
 
 import { ActivatedRoute } from "@angular/router";
+import { of } from "rxjs";
+import { switchMap, tap } from "rxjs/operators";
 import { WeatherService } from "../../services";
 
 @Component({
@@ -9,15 +11,20 @@ import { WeatherService } from "../../services";
   styleUrls: ["./forecasts-list.component.css"],
 })
 export class ForecastsListComponent {
-  zipcode: string;
-  forecast: any;
+  zipCode: string;
+  forecast$;
 
   constructor(private weatherService: WeatherService, route: ActivatedRoute) {
-    route.params.subscribe((params) => {
-      this.zipcode = params["zipcode"];
-      weatherService
-        .getForecast(this.zipcode)
-        .subscribe((data) => (this.forecast = data));
-    });
+    this.forecast$ = route.params
+      .pipe(
+        tap((params) => (this.zipCode = params["zipcode"])),
+        switchMap((params) => {
+          return this.weatherService.getForecast(this.zipCode);
+        })
+      )
+      .subscribe();
   }
 }
+
+
+

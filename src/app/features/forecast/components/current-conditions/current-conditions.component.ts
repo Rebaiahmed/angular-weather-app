@@ -1,5 +1,6 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { Observable } from "rxjs";
 import { LocationService, WeatherService } from "../../services";
 
 @Component({
@@ -7,19 +8,23 @@ import { LocationService, WeatherService } from "../../services";
   templateUrl: "./current-conditions.component.html",
   styleUrls: ["./current-conditions.component.css"],
 })
-export class CurrentConditionsComponent {
-  currentConditions: [];
+export class CurrentConditionsComponent implements OnInit {
+  currentConditions: any[];
   constructor(
     private weatherService: WeatherService,
     private locationService: LocationService,
     private router: Router
   ) {}
 
+  ngOnInit() {
+    this.weatherService.getCurrentConditions();
+  }
+
   getCurrentConditions() {
     return this.weatherService.getCurrentConditions();
   }
 
-  showForecast(zipcode: string) {
-    this.router.navigate(["/forecast", zipcode]);
+  showForecast(zipCode: string) {
+    this.router.navigate(["/forecast", zipCode]);
   }
 }
