@@ -1,7 +1,6 @@
 import { Component } from "@angular/core";
-import { WeatherService } from "../../../weather.service";
-import { LocationService } from "../../../location.service";
 import { Router } from "@angular/router";
+import { LocationService, WeatherService } from "../../services";
 
 @Component({
   selector: "app-current-conditions",
@@ -9,6 +8,7 @@ import { Router } from "@angular/router";
   styleUrls: ["./current-conditions.component.css"],
 })
 export class CurrentConditionsComponent {
+  currentConditions: [];
   constructor(
     private weatherService: WeatherService,
     private locationService: LocationService,

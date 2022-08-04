@@ -1,6 +1,7 @@
 import { Component } from "@angular/core";
-import { WeatherService } from "../../../weather.service";
+
 import { ActivatedRoute } from "@angular/router";
+import { WeatherService } from "../../services";
 
 @Component({
   selector: "app-forecasts-list",

@@ -1,4 +1,4 @@
-<div>
+<ng-container>
   <div *ngFor="let location  of getCurrentConditions()" class="well flex" (click)="showForecast(location.zip)">
     <div>
       <h3>{{location.data.name}} ({{location.zip}})</h3>
@@ -18,4 +18,4 @@
       <img [src]="weatherService.getWeatherIcon(location.data.weather[0].id)">
     </div>
  </div>
-</div>
+ <ng-container>
