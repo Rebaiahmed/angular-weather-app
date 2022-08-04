@@ -1,37 +1,55 @@
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, timer } from "rxjs";
 
 import { HttpClient } from "@angular/common/http";
 
 import { environment } from "../../../../environments/environment";
+import { Weather } from "../models";
+import { retry, switchMap } from "rxjs/operators";
 
 @Injectable()
 export class WeatherService {
+  private currentConditions = [];
+  currentConditions$;
   constructor(private http: HttpClient) {}
 
   addCurrentConditions(zipcode: string): void {
-    // Here we make a request to get the curretn conditions data from the API. Note the use of backticks and an expression to insert the zipcode
-    this.http.get(
-      `${environment.API_URL}/weather?zip=${zipcode},us&units=imperial&APPID=${environment.APPID}`
+    // Here we make a request to get the current conditions data from the API. Note the use of backticks and an expression to insert the zipcode
+    this.http
+      .get<Weather>(
+        `${environment.API_URL}/weather?zip=${zipcode},us&units=imperial&APPID=${environment.APPID}`
+      )
+      .subscribe((data) => {
+        this.currentConditions.push({ zip: zipcode, data: data });
+      });
+  }
+
+  refreshData() {
+    this.currentConditions$ = timer(1, 3000).pipe(
+      switchMap(() => {
+        return this.http.get<Weather>(
+          `${environment.API_URL}/weather?zip=${zipcode},us&units=imperial&APPID=${environment.APPID}`
+        );
+      }),
+      retry()
     );
   }
 
-  removeCurrentConditions(zipcode: string) {
-    /*  for (let i in this.currentConditions) {
-      if (this.currentConditions[i].zip == zipcode)
+  removeCurrentConditions(zipCode: string) {
+    for (let i in this.currentConditions) {
+      if (this.currentConditions[i].zip == zipCode)
         this.currentConditions.splice(+i, 1);
-    } */
+    }
   }
 
   getCurrentConditions(): any[] {
-    /*   return this.currentConditions; */
-    return null;
+    return this.currentConditions;
   }
 
-  getForecast(zipcode: string): Observable<any> {
+  getForecast(zipCode: string): Observable<Weather[]> {
     // Here we make a request to get the forecast data from the API. Note the use of backticks and an expression to insert the zipcode
-    return this.http.get(
-      `${environment.API_URL}/forecast/daily?zip=${zipcode},us&units=imperial&cnt=5&APPID=${environment.APPID}`
+    return this.http.get<Weather[]>(
+      `${environment.API_URL}/forecast/daily?zip=${zipCode},us&units=imperial&cnt=5&APPID=${environment.APPID}`
     );
   }
 

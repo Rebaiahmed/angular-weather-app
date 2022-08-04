@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { Observable } from "rxjs";
 import { LocationService, WeatherService } from "../../services";
 
 @Component({
@@ -17,11 +16,17 @@ export class CurrentConditionsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.weatherService.getCurrentConditions();
-  }
-
-  getCurrentConditions() {
-    return this.weatherService.getCurrentConditions();
+    this.currentConditions = this.weatherService
+      .getCurrentConditions()
+      .map((location) => {
+        return {
+          ...location,
+          imageSrc: this.weatherService.getWeatherIcon(
+            location.data.weather[0].id
+          ),
+        };
+      });
+    console.log("sshs", this.currentConditions);
   }
 
   showForecast(zipCode: string) {
