@@ -1,6 +1,6 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { LocationService, WeatherService } from "../../services";
+import { Weather } from "../../models/weather";
 
 @Component({
   selector: "app-current-conditions",
@@ -8,26 +8,10 @@ import { LocationService, WeatherService } from "../../services";
   styleUrls: ["./current-conditions.component.css"],
 })
 export class CurrentConditionsComponent implements OnInit {
-  currentConditions: any[];
-  constructor(
-    private weatherService: WeatherService,
-    private locationService: LocationService,
-    private router: Router
-  ) {}
+  @Input() weatherConditions: Weather[] = [];
+  constructor(private router: Router) {}
 
-  ngOnInit() {
-    this.currentConditions = this.weatherService
-      .getCurrentConditions()
-      .map((location) => {
-        return {
-          ...location,
-          imageSrc: this.weatherService.getWeatherIcon(
-            location.data.weather[0].id
-          ),
-        };
-      });
-    console.log("sshs", this.currentConditions);
-  }
+  ngOnInit() {}
 
   showForecast(zipCode: string) {
     this.router.navigate(["/forecast", zipCode]);

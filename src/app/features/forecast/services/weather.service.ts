@@ -13,18 +13,15 @@ export class WeatherService {
   currentConditions$;
   constructor(private http: HttpClient) {}
 
-  addCurrentConditions(zipcode: string): void {
+  addCurrentConditions(zipcode: string): Observable<Weather> {
     // Here we make a request to get the current conditions data from the API. Note the use of backticks and an expression to insert the zipcode
-    this.http
-      .get<Weather>(
-        `${environment.API_URL}/weather?zip=${zipcode},us&units=imperial&APPID=${environment.APPID}`
-      )
-      .subscribe((data) => {
-        this.currentConditions.push({ zip: zipcode, data: data });
-      });
+    return this.http.get<Weather>(
+      `${environment.API_URL}/weather?zip=${zipcode},us&units=imperial&APPID=${environment.APPID}`
+    );
   }
 
   refreshData() {
+    const zipcode = "1é&-1";
     this.currentConditions$ = timer(1, 3000).pipe(
       switchMap(() => {
         return this.http.get<Weather>(
@@ -54,6 +51,7 @@ export class WeatherService {
   }
 
   getWeatherIcon(id) {
+    console.log("aa", id);
     if (id >= 200 && id <= 232) return environment.ICON_URL + "art_storm.png";
     else if (id >= 501 && id <= 511)
       return environment.ICON_URL + "art_rain.png";
