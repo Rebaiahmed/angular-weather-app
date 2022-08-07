@@ -1,8 +1,7 @@
-<div class="well">
+<div>
   <h2>Enter a zipcode:</h2>
-  <form [formGroup]="searchWeatherForm">
+    <div class="form-group" [formGroup]="searchWeatherForm">
   <input type="text" formControlName="zipCode" placeholder="Zipcode" class="form-control">
+</div>
   <br>
-<app-btn-save [btnConfig]="currentBtnConfig"   (onClick)="addLocation($event)"></app-btn-save>
-</form>
 </div>

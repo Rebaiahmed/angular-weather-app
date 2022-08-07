@@ -13,7 +13,10 @@ export class CurrentConditionsComponent implements OnInit {
 
   ngOnInit() {}
 
-  showForecast(zipCode: string) {
-    this.router.navigate(["/forecast", zipCode]);
+  showForecast(zipCode: string, countryCode: string) {
+    this.router.navigate([
+      "/forecast",
+      { zipCode: zipCode, countryCode: countryCode },
+    ]);
   }
 }

@@ -10,8 +10,8 @@ export class LocationService {
   constructor(private weatherService: WeatherService) {
     let locString = localStorage.getItem(LOCATIONS);
     if (locString) this.locations = JSON.parse(locString);
-    for (let loc of this.locations)
-      this.weatherService.addCurrentConditions(loc);
+    /* for (let loc of this.locations)
+    this.weatherService.addCurrentConditions(loc); */
   }
 
   addLocation(zipCode: string) {

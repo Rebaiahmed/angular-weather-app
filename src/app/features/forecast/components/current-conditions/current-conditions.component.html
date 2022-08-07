@@ -16,7 +16,7 @@
       </p>
     </div>
     <div>
-      <span class="close" (click)="locationService.removeLocation(location.zip)">&times;</span>
+      <span class="close" (click)="locationService.removeLocation(location.zip,location.countryCode)">&times;</span>
       <img src="{{location.data?.imageSrc}}">
     </div>
  </div>

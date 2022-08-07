@@ -1,6 +1,19 @@
-<div class="container-fluid">
 
-  <app-zipcode-entry   (newZipCode$)="getCurrentZipCode($event)"> </app-zipcode-entry>
-  <app-current-conditions    [weatherConditions]="currentConditions"></app-current-conditions>
+<div class="container-fluid">
+  <div class="row well">
+      <div class="col-md-6">  
+         <app-zipcode-entry> </app-zipcode-entry>
+      </div>
+      <div class="col-md-6">
+        <app-country-selection></app-country-selection>
+      </div>
+      <br/>
+      <br/>
+      <br/>
+      <div>
+        <app-btn-save [btnConfig]="currentBtnConfig"></app-btn-save>
+      </div>
+    
+   </div>
 
 </div>

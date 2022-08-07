@@ -9,12 +9,6 @@ import { LocationService } from "../../services";
 })
 export class ZipcodeEntryComponent {
   @Output() newZipCode$ = new EventEmitter<string>();
-  currentBtnConfig: BtnConfig = {
-    label: "test <span class='btn-label'><i class='fa fa-check'></i> </span>",
-    btnClass: "btn btn-success",
-    isDisabled: true,
-    isLoading: false,
-  };
   constructor(private service: LocationService) {}
 
   searchWeatherForm = new FormGroup({

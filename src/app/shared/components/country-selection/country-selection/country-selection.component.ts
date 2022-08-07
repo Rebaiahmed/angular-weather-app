@@ -28,6 +28,10 @@ export class CountrySelectionComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes) {}
 
+  onBlur() {
+    console.log("onBlur");
+  }
+
   ngOnInit(): void {}
 
   onCountrySelected() {

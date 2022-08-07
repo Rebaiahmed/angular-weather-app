@@ -8,6 +8,7 @@ import { appRoutes } from "./forecast-routing.module";
 import { LocationService, WeatherService } from "./services";
 import { MainPageComponent } from "./components/main-page/main-page.component";
 import { SharedModule } from "../../shared/shared.module";
+import { CountrySelectionModule } from "../../shared/components/country-selection/country-selection.module";
 @NgModule({
   declarations: [
     ZipcodeEntryComponent,
@@ -15,7 +16,12 @@ import { SharedModule } from "../../shared/shared.module";
     CurrentConditionsComponent,
     MainPageComponent,
   ],
-  imports: [CommonModule, SharedModule, RouterModule.forChild(appRoutes)],
+  imports: [
+    CommonModule,
+    SharedModule,
+    CountrySelectionModule,
+    RouterModule.forChild(appRoutes),
+  ],
   providers: [LocationService, WeatherService],
   exports: [RouterModule],
 })

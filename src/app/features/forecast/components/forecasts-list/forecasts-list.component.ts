@@ -11,13 +11,17 @@ import { WeatherService } from "../../services";
 })
 export class ForecastsListComponent {
   zipCode: string;
+  countryCode: string;
   forecast$;
 
   constructor(private weatherService: WeatherService, route: ActivatedRoute) {
     this.forecast$ = route.params.pipe(
-      tap((params) => (this.zipCode = params["zipcode"])),
+      tap((params) => {
+        this.countryCode = params["countryCode"];
+        this.zipCode = params["zipcode"];
+      }),
       switchMap((params) => {
-        return this.weatherService.getForecast(this.zipCode);
+        return this.weatherService.getForecast(this.zipCode, this.countryCode);
       })
     );
   }

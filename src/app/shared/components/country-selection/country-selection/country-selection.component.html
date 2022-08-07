@@ -1,1 +1,19 @@
-<p>country selection!</p>
+<ng-container>
+  <div class="form-group">
+    <input (blur)="onBlur()" 
+    placeholder="Enter a Country Name"
+    class="form-control autocomplete-input"
+    [formControl]="country"
+    aria-label="country">
+  </div>
+    <select
+  >
+    <option>
+    </option>
+    <option *ngFor="let country of countries" [value]="country">{{ country.name }}</option>
+  </select>
+
+</ng-container>
+
+
+
