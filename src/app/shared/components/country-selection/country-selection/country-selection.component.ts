@@ -35,18 +35,22 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
 
   constructor(private service: CountrySelectionService) {}
 
-  onBlur() {
-    console.log("onBlur");
+  ngOnInit(): void {
+    this.getCurrentCountries();
+    this.onCountryInputValueChanged();
   }
 
-  ngOnInit(): void {
+  identify(index, item) {
+    return item.name;
+  }
+
+  getCurrentCountries() {
     this.service
       .loadCountries()
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((countries) => {
         this.countries = countries;
       });
-    this.onCountryInputValueChanged();
   }
 
   onCountryInputValueChanged() {
