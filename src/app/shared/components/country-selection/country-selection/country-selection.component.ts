@@ -1,4 +1,3 @@
-import { Country } from "../../models/country.model";
 import {
   Component,
   EventEmitter,
@@ -7,6 +6,8 @@ import {
   Output,
 } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
+import { Country } from "../../../models";
+import { CountrySelectionService } from "../country.service";
 
 @Component({
   selector: "app-country-selection",
@@ -19,14 +20,17 @@ export class CountrySelectionComponent implements OnInit, OnChanges {
   countrySelectionFrom = new FormGroup({
     country: new FormControl(),
   });
+  countries: Country[] = [];
 
-  constructor() {}
+  constructor(private service: CountrySelectionService) {
+    this.countries = this.service.loadCountries();
+  }
 
   ngOnChanges(changes) {}
 
   ngOnInit(): void {}
 
   onCountrySelected() {
-    this.countrySelected$.emit("country selected!");
+    this.countrySelected$.emit(null);
   }
 }

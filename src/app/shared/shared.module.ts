@@ -1,11 +1,11 @@
-import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import { NgModule } from "@angular/core";
 import { BtnSaveComponent } from "./components/btn-save/btn-save.component";
-import { CountrySelectionComponent } from "./components/country-selection/country-selection.component";
+import { CountrySelectionModule } from "./components/country-selection/country-selection.module";
 
 @NgModule({
-  declarations: [BtnSaveComponent, CountrySelectionComponent],
-  imports: [CommonModule],
-  exports: [BtnSaveComponent, CountrySelectionComponent],
+  declarations: [BtnSaveComponent],
+  imports: [CommonModule, CountrySelectionModule],
+  exports: [BtnSaveComponent],
 })
 export class SharedModule {}

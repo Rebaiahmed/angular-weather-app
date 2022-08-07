@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from "@angular/core";
 import { interval, Subject, throwError } from "rxjs";
 import { catchError, startWith, switchMap, takeUntil } from "rxjs/operators";
-import { CONSTANTS } from "../../../../shared/constants";
+import { CONSTANTS } from "../../../../shared/utils/constants";
 import { WeatherService } from "../../services";
 
 @Component({
