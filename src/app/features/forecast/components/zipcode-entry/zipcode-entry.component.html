@@ -1,10 +1,8 @@
 <div class="well">
   <h2>Enter a zipcode:</h2>
-  <form [formGroup]="searchWeatherForm" (ngSubmit)="onFormSubmit()">
+  <form [formGroup]="searchWeatherForm">
   <input type="text" formControlName="zipCode" placeholder="Zipcode" class="form-control">
   <br>
-  <button class="btn btn-primary" >
-    Add location
-  </button>
+<app-btn-save [btnConfig]="currentBtnConfig"   (onClick)="addLocation($event)"></app-btn-save>
 </form>
 </div>

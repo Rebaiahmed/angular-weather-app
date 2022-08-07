@@ -13,6 +13,7 @@ export class MainPageComponent implements OnDestroy {
   pollingConditions$;
   currentZipCode = "";
   currentConditions = [];
+  loading = false;
 
   constructor(private weatherService: WeatherService) {}
 

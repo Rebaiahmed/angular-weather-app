@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
+import { BtnConfig } from "../../../../shared/models/btn-config";
 import { LocationService } from "../../services";
 
 @Component({
@@ -8,6 +9,7 @@ import { LocationService } from "../../services";
 })
 export class ZipcodeEntryComponent {
   @Output() newZipCode$ = new EventEmitter<string>();
+  currentBtnConfig: BtnConfig;
   constructor(private service: LocationService) {}
 
   searchWeatherForm = new FormGroup({
@@ -17,9 +19,5 @@ export class ZipcodeEntryComponent {
   addLocation(zipcode: string) {
     this.service.addLocation(zipcode);
     this.newZipCode$.emit(zipcode);
-  }
-
-  onFormSubmit() {
-    console.log("sent!");
   }
 }

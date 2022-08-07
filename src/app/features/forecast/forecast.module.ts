@@ -7,6 +7,7 @@ import { RouterModule } from "@angular/router";
 import { appRoutes } from "./forecast-routing.module";
 import { LocationService, WeatherService } from "./services";
 import { MainPageComponent } from "./components/main-page/main-page.component";
+import { SharedModule } from "../../shared/shared.module";
 @NgModule({
   declarations: [
     ZipcodeEntryComponent,
@@ -14,7 +15,7 @@ import { MainPageComponent } from "./components/main-page/main-page.component";
     CurrentConditionsComponent,
     MainPageComponent,
   ],
-  imports: [CommonModule, RouterModule.forChild(appRoutes)],
+  imports: [CommonModule, SharedModule, RouterModule.forChild(appRoutes)],
   providers: [LocationService, WeatherService],
   exports: [RouterModule],
 })
