@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from "@angular/core";
+import { FormControl, FormGroup } from "@angular/forms";
 import { LocationService } from "../../services";
 
 @Component({
@@ -9,8 +10,16 @@ export class ZipcodeEntryComponent {
   @Output() newZipCode$ = new EventEmitter<string>();
   constructor(private service: LocationService) {}
 
+  searchWeatherForm = new FormGroup({
+    zipCode: new FormControl(),
+  });
+
   addLocation(zipcode: string) {
     this.service.addLocation(zipcode);
     this.newZipCode$.emit(zipcode);
+  }
+
+  onFormSubmit() {
+    console.log("sent!");
   }
 }

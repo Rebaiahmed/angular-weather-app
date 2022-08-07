@@ -1,5 +1,5 @@
 import { NgModule } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 
 import { HttpClientModule } from "@angular/common/http";
@@ -18,6 +18,7 @@ import { ForecastModule } from "./features/forecast/forecast.module";
     HttpClientModule,
     RouterModule,
     routing,
+    ReactiveFormsModule,
 
     ServiceWorkerModule.register("/ngsw-worker.js", {
       enabled: environment.production,

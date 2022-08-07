@@ -1,45 +1,47 @@
-import { Component } from '@angular/core';
-import { map, tap } from "rxjs/operators";
-import { LocationService, WeatherService } from "../../services";
+import { Component, OnDestroy } from "@angular/core";
+import { interval, Subject, throwError } from "rxjs";
+import { catchError, startWith, switchMap, takeUntil } from "rxjs/operators";
+import { CONSTANTS } from "../../../../shared/constants";
+import { WeatherService } from "../../services";
 
 @Component({
   selector: "app-main-page",
   templateUrl: "./main-page.component.html",
 })
-export class MainPageComponent {
+export class MainPageComponent implements OnDestroy {
+  private stopPolling = new Subject();
+  pollingConditions$;
   currentZipCode = "";
   currentConditions = [];
 
-  constructor(
-    private weatherService: WeatherService,
-    private locationService: LocationService
-  ) {}
-
-  ngOnInit() {
-    //here maybe refresh all zipcodes w dipalyehom!
-  }
+  constructor(private weatherService: WeatherService) {}
 
   getCurrentZipCode($event) {
     this.currentZipCode = $event;
-    this.weatherService
-      .addCurrentConditions(this.currentZipCode)
+
+    this.pollingConditions$ = interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
-        tap(console.log),
-        map((condition) => {
-          return {
-            ...condition,
-            imageSrc: this.weatherService.getWeatherIcon(
-              condition.weather[0].id
-            ),
-            zipCode: this.currentZipCode,
-          };
-        })
+        startWith(0),
+        switchMap(() =>
+          this.weatherService.addCurrentConditions(this.currentZipCode)
+        ),
+        catchError((err) => {
+          return throwError(err);
+        }),
+        takeUntil(this.stopPolling)
       )
       .subscribe((currentWeather) => {
-        this.currentConditions.push({
-          data: currentWeather,
-          zip: this.currentZipCode,
-        });
+        this.currentConditions = [
+          {
+            data: currentWeather,
+            zip: this.currentZipCode,
+          },
+        ];
       });
+  }
+
+  ngOnDestroy() {
+    this.stopPolling.next();
+    this.stopPolling.complete();
   }
 }
