@@ -1,17 +1,24 @@
 <ng-container>
-  <div class="form-group">
+  <div class="form-group"  [formGroup]="countrySelectionFrom">
     <input (blur)="onBlur()" 
+    type="text"
     placeholder="Enter a Country Name"
-    class="form-control autocomplete-input"
-    [formControl]="country"
+    class="form-control"
+    formControlName="countryForm"
     aria-label="country">
+
+    <div class="suggestions" *ngIf="filteredCountries.length>0">
+   <ul class="list-group" *ngFor="let country of filteredCountries">
+    <li class="list-group-item"  (click)="onCountrySelected(country)">
+      <span [innerHTML]="country?.name | boldSpan:countrySelectionFrom.controls['countryForm'].value" ></span>
+  </li>
+   </ul>
+  
+    </div>
+  
   </div>
-    <select
-  >
-    <option>
-    </option>
-    <option *ngFor="let country of countries" [value]="country">{{ country.name }}</option>
-  </select>
+
+
 
 </ng-container>
 

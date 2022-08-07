@@ -6,6 +6,7 @@ import {
   switchMap,
   takeUntil,
   tap,
+  skipWhile,
 } from "rxjs/operators";
 import { BtnConfig } from "../../../../shared/models";
 import { CONSTANTS } from "../../../../shared/utils/constants";
@@ -33,21 +34,23 @@ export class MainPageComponent implements OnDestroy {
   };
 
   constructor(private weatherService: WeatherService) {
-    this.listen$ = zip(this.zipCodeSelect$, this.countryCodeSelect$)
-      .pipe(
-        tap(() => {}),
-        takeUntil(this.stopPolling),
-        catchError((err) => {
-          return throwError(err);
-        })
-      )
-      .subscribe((results) => {
+    this.listen$ = zip(this.zipCodeSelect$, this.countryCodeSelect$).pipe(
+      tap(() => console.log),
+      takeUntil(this.stopPolling),
+      catchError((err) => {
+        return throwError(err);
+      })
+    );
+    /*   .subscribe((results) => {
         console.log(results);
-      });
+      }); */
 
     this.pollingConditions$ = interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
         startWith(0),
+        skipWhile(
+          () => this.currentZipCode == "" && this.currentCountryCode == ""
+        ),
         switchMap(() =>
           this.weatherService.addCurrentConditions(
             this.currentZipCode,
