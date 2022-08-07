@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { interval, Subject, throwError, zip } from "rxjs";
 import {
   catchError,
@@ -7,6 +7,9 @@ import {
   takeUntil,
   tap,
   skipWhile,
+  take,
+  delay,
+  retryWhen,
 } from "rxjs/operators";
 import { BtnConfig } from "../../../../shared/models";
 import { CONSTANTS } from "../../../../shared/utils/constants";
@@ -16,14 +19,14 @@ import { WeatherService } from "../../services";
   selector: "app-main-page",
   templateUrl: "./main-page.component.html",
 })
-export class MainPageComponent implements OnDestroy {
+export class MainPageComponent implements OnInit, OnDestroy {
   private stopPolling = new Subject();
   pollingConditions$;
   zipCodeSelect$;
   countryCodeSelect$;
   listen$;
-  currentZipCode = "";
-  currentCountryCode = "";
+  currentZipCode = "12161";
+  currentCountryCode = "25000";
   currentConditions = [];
   loading = false;
   currentBtnConfig: BtnConfig = {
@@ -44,9 +47,12 @@ export class MainPageComponent implements OnDestroy {
     /*   .subscribe((results) => {
         console.log(results);
       }); */
+  }
 
+  ngOnInit(): void {
     this.pollingConditions$ = interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
+        tap(() => (this.loading = true)),
         startWith(0),
         skipWhile(
           () => this.currentZipCode == "" && this.currentCountryCode == ""
@@ -58,11 +64,15 @@ export class MainPageComponent implements OnDestroy {
           )
         ),
         catchError((err) => {
+          console.log("err", err);
+          // this.loading = false;
           return throwError(err);
         }),
+        retryWhen((error$) => error$.pipe(delay(1000), take(6))),
         takeUntil(this.stopPolling)
       )
       .subscribe((currentWeather) => {
+        this.loading = false;
         this.currentConditions = [
           {
             data: currentWeather,

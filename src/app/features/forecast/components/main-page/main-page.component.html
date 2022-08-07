@@ -1,5 +1,12 @@
 
 <div class="container-fluid">
+  <div class="loading-overlay"
+  *ngIf="loading">
+ <div class="loading-contents">
+     <span class="glyphicon glyphicon-refresh spinning"></span>
+     Refreshing data...
+ </div>
+</div>
   <div class="row well">
       <div class="col-md-6">  
          <app-zipcode-entry> </app-zipcode-entry>
