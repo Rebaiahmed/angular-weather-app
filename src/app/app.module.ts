@@ -9,9 +9,10 @@ import { environment } from "../environments/environment";
 import { AppComponent } from "./app.component";
 import { routing } from "./app.routing";
 import { ForecastModule } from "./features/forecast/forecast.module";
+import { TestComponent } from './test/test.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, TestComponent],
   imports: [
     BrowserModule,
     FormsModule,

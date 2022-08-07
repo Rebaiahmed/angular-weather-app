@@ -18,6 +18,7 @@ export class BtnSaveComponent implements OnInit, OnChanges {
     label: "Add location",
     btnClass: "btn btn-primary",
     isDisabled: false,
+    isLoading: false,
   };
 
   @Output() onClick = new EventEmitter<any>();
