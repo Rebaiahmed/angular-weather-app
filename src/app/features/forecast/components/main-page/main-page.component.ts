@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { interval, Subject, throwError, zip } from "rxjs";
+import { BehaviorSubject, interval, Subject, throwError, zip } from "rxjs";
 import {
   catchError,
   delay,
@@ -21,23 +21,17 @@ import { ForeCastQuery } from "../../state/forecast.store.query";
   templateUrl: "./main-page.component.html",
 })
 export class MainPageComponent implements OnInit, OnDestroy {
-  private stopPolling = new Subject();
-  pollingConditions$;
-  listen$;
-  currentBtnConfig: BtnConfig = {
-    label: "test <span class='btn-label'><i class='fa fa-check'></i> </span>",
-    btnClass: "btn btn-success",
-    isDisabled: false,
-    isLoading: false,
-  };
+  stopPolling$ = new Subject();
+  stopListen$ = new Subject();
+  btnClickedObservable$ = new BehaviorSubject(false);
 
+  zipCodeSelect$ = this.foreCastQuery.zipCode$;
+  countryCodeSelect$ = this.foreCastQuery.countryCode$;
+  currentBtnConfig: BtnConfig;
   currentZipCode = "";
   currentCountryCode = "";
   currentConditions = [];
   loading = false;
-
-  zipCodeSelect$ = this.foreCastQuery.zipCode$;
-  countryCodeSelect$ = this.foreCastQuery.countryCode$;
 
   constructor(
     private weatherService: WeatherService,
@@ -45,9 +39,28 @@ export class MainPageComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.listen$ = zip(this.zipCodeSelect$, this.countryCodeSelect$)
+    this.setBtnState({
+      label: "Add location",
+      btnClass: "btn btn-primary",
+      isDisabled: false,
+      isLoading: false,
+    });
+    this.syncSearchWeatherParams$();
+    this.pollingApiCall();
+  }
+
+  setBtnState(config: BtnConfig): void {
+    this.currentBtnConfig = config;
+  }
+
+  syncSearchWeatherParams$() {
+    zip(
+      this.zipCodeSelect$,
+      this.countryCodeSelect$,
+      this.btnClickedObservable$
+    )
       .pipe(
-        takeUntil(this.stopPolling),
+        takeUntil(this.stopListen$),
         catchError((err) => {
           return throwError(err);
         })
@@ -56,12 +69,20 @@ export class MainPageComponent implements OnInit, OnDestroy {
         this.currentZipCode = results[0];
         this.currentCountryCode = results[1];
       });
+  }
 
-    this.pollingApiCall();
+  btnClicked($event) {
+    this.btnClickedObservable$.next(true);
+    this.setBtnState({
+      ...this.currentBtnConfig,
+      label: "Adding ...",
+      isDisabled: true,
+      isLoading: true,
+    });
   }
 
   pollingApiCall() {
-    this.pollingConditions$ = interval(CONSTANTS.POLLING_INTERVAL)
+    interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
         tap(() => (this.loading = true)),
         startWith(0),
@@ -75,13 +96,20 @@ export class MainPageComponent implements OnInit, OnDestroy {
           )
         ),
         catchError((err) => {
+          this.loading = false;
           return throwError(err);
         }),
         retryWhen((error$) => error$.pipe(delay(1000), take(6))),
-        takeUntil(this.stopPolling)
+        takeUntil(this.stopPolling$)
       )
       .subscribe((currentWeather) => {
         this.loading = false;
+        this.setBtnState({
+          label: "Done",
+          btnClass: "btn btn-success",
+          isDisabled: false,
+          isLoading: false,
+        });
         this.currentConditions = [
           {
             data: currentWeather,
@@ -96,7 +124,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.stopPolling.next();
-    this.stopPolling.complete();
+    this.stopPolling$.next();
+    this.stopPolling$.complete();
+
+    this.stopListen$.next();
+    this.stopListen$.complete();
   }
 }

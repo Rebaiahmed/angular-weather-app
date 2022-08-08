@@ -15,7 +15,7 @@
         <app-country-selection></app-country-selection>
       </div>
       <div>
-        <app-btn-save [btnConfig]="currentBtnConfig"></app-btn-save>
+        <app-btn-save (onClick)='btnClicked($event)' [btnConfig]="currentBtnConfig"></app-btn-save>
       </div>
     
    </div>
