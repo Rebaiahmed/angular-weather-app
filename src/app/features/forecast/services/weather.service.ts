@@ -36,7 +36,7 @@ export class WeatherService {
   getForecast(zipCode: string, countryCode: string): Observable<Weather[]> {
     // Here we make a request to get the forecast data from the API. Note the use of backticks and an expression to insert the zipcode
     return this.http.get<Weather[]>(
-      `${environment.API_URL}/forecast/daily?zip=${zipCode},${countryCode}us&units=imperial&cnt=5&APPID=${environment.APPID}`
+      `${environment.API_URL}/forecast/daily?zip=${zipCode},${countryCode}&units=imperial&cnt=5&APPID=${environment.APPID}`
     );
   }
 

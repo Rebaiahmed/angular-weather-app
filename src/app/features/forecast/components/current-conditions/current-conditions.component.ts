@@ -14,7 +14,6 @@ export class CurrentConditionsComponent implements OnInit {
   ngOnInit() {}
 
   showForecast(location) {
-    console.log(location);
     this.router.navigate([
       "/forecast",
       { zipCode: location.zip, countryCode: location.countryCode },
