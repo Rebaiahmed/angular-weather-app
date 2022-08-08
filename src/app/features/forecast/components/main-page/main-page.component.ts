@@ -107,6 +107,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
           this.setBtnState({
             ...this.currentBtnConfig,
             isLoading: false,
+            isDisabled: false,
           });
           return throwError(err);
         }),
