@@ -47,14 +47,12 @@ export class MainPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.listen$ = zip(this.zipCodeSelect$, this.countryCodeSelect$)
       .pipe(
-        tap(() => console.log),
         takeUntil(this.stopPolling),
         catchError((err) => {
           return throwError(err);
         })
       )
       .subscribe((results) => {
-        console.log(results);
         this.currentZipCode = results[0];
         this.currentCountryCode = results[1];
       });
@@ -88,6 +86,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
           {
             data: currentWeather,
             zip: this.currentZipCode,
+            countryCode: this.currentCountryCode,
+            imageSrc: this.weatherService.getWeatherIcon(
+              currentWeather.weather[0].id
+            ),
           },
         ];
       });
