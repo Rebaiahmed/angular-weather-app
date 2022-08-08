@@ -84,7 +84,7 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
       .get("countryForm")
       .setValue(entry.name, { emitEvent: false });
 
-    this.foreCastStoreService.setCountryCode(entry.name);
+    this.foreCastStoreService.setCountryCode(entry.countryCode);
     this.filteredCountries = [];
   }
 

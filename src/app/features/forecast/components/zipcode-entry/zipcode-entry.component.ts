@@ -30,7 +30,7 @@ export class ZipcodeEntryComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(500), takeUntil(this.destroySubscription$))
       .subscribe((result) => {
         if (result[0] == "VALID") {
-          this.foreCastStoreService.setZipCode(result[1]);
+          this.foreCastStoreService.setZipCode(result[1].zipCodeControl);
         }
       });
   }
