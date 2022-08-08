@@ -1,13 +1,17 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { BehaviorSubject, interval, Subject, throwError, zip } from "rxjs";
+import {
+  BehaviorSubject,
+  interval,
+  Subject,
+  throwError,
+  timer,
+  zip,
+} from "rxjs";
 import {
   catchError,
-  delay,
-  retryWhen,
   skipWhile,
   startWith,
   switchMap,
-  take,
   takeUntil,
   tap,
 } from "rxjs/operators";
@@ -84,7 +88,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
   pollingApiCall() {
     interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
-        tap(() => (this.loading = true)),
+        tap(() => {
+          if (this.currentZipCode != "" && this.currentCountryCode != "")
+            this.loading = true;
+        }),
         startWith(0),
         skipWhile(
           () => this.currentZipCode == "" && this.currentCountryCode == ""
@@ -97,9 +104,13 @@ export class MainPageComponent implements OnInit, OnDestroy {
         ),
         catchError((err) => {
           this.loading = false;
+          this.setBtnState({
+            ...this.currentBtnConfig,
+            isLoading: false,
+          });
           return throwError(err);
         }),
-        retryWhen((error$) => error$.pipe(delay(1000), take(6))),
+        // retryWhen((error$) => error$.pipe(delay(1000), take(6))),
         takeUntil(this.stopPolling$)
       )
       .subscribe((currentWeather) => {
@@ -120,6 +131,19 @@ export class MainPageComponent implements OnInit, OnDestroy {
             ),
           },
         ];
+
+        timer(CONSTANTS.RESET_TIMER)
+          .pipe(
+            tap(() => {
+              this.setBtnState({
+                label: "Add location",
+                btnClass: "btn btn-primary",
+                isDisabled: false,
+                isLoading: false,
+              });
+            })
+          )
+          .subscribe();
       });
   }
 
