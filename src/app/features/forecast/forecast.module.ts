@@ -9,6 +9,7 @@ import { LocationService, WeatherService } from "./services";
 import { MainPageComponent } from "./components/main-page/main-page.component";
 import { SharedModule } from "../../shared/shared.module";
 import { CountrySelectionModule } from "../../shared/components/country-selection/country-selection.module";
+import { ReactiveFormsModule } from "@angular/forms";
 @NgModule({
   declarations: [
     ZipcodeEntryComponent,
@@ -21,6 +22,7 @@ import { CountrySelectionModule } from "../../shared/components/country-selectio
     SharedModule,
     CountrySelectionModule,
     RouterModule.forChild(appRoutes),
+    ReactiveFormsModule,
   ],
   providers: [LocationService, WeatherService],
   exports: [RouterModule],

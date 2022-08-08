@@ -1,7 +1,7 @@
-<div>
+<div [formGroup]="searchWeatherForm">
   <h2>Enter a zipcode:</h2>
-    <div class="form-group" formGroup="searchWeatherForm">
-  <input type="number"formControlName="zipCodeControl" placeholder="Zipcode" 
+    <div class="form-group" >
+  <input type="number"   formControlName="zipCodeControl" placeholder="Zipcode" 
   class="form-control">
 </div>
   <br>

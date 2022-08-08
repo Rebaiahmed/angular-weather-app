@@ -11,9 +11,11 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
+  map,
   switchMap,
   takeUntil,
 } from "rxjs/operators";
+import { ForeCastStoreService } from "../../../../features/forecast/state/forecast.store.service";
 import { Country } from "../../../models";
 import { CountrySelectionService } from "../country.service";
 
@@ -33,7 +35,10 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
   countries: Country[] = [];
   filteredCountries: Country[] = [];
 
-  constructor(private service: CountrySelectionService) {}
+  constructor(
+    private service: CountrySelectionService,
+    private foreCastStoreService: ForeCastStoreService
+  ) {}
 
   ngOnInit(): void {
     this.getCurrentCountries();
@@ -58,7 +63,7 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
       .get("countryForm")
       .valueChanges.pipe(
         filter((textValue) => textValue !== ""),
-        //map((textValue) => textValue.toLowerCase()),
+        map((textValue) => textValue.toLowerCase()),
         takeUntil(this.destroy$),
         debounceTime(400),
         distinctUntilChanged(),
@@ -78,6 +83,8 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
     this.countrySelectionFrom
       .get("countryForm")
       .setValue(entry.name, { emitEvent: false });
+
+    this.foreCastStoreService.setCountryCode(entry.name);
     this.filteredCountries = [];
   }
 
