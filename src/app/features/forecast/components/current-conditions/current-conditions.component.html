@@ -1,6 +1,6 @@
 <ng-container>
   <div
-    *ngFor="let location of weatherConditions"
+    *ngFor="let location of weatherConditions; trackBy: identify"
     class="well flex"
     (click)="showForecast(location)"
   >
@@ -27,5 +27,4 @@
       <img src="{{ location.imageSrc }}" />
     </div>
   </div>
-  <ng-container> </ng-container
-></ng-container>
+</ng-container>

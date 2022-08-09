@@ -7,7 +7,7 @@ import { BoldSpanPipe } from "./pipes/bold-span.pipe";
 @NgModule({
   declarations: [BtnSaveComponent],
   imports: [CommonModule, CountrySelectionModule],
-  exports: [BtnSaveComponent],
+  exports: [BtnSaveComponent, CountrySelectionModule],
   providers: [BoldSpanPipe],
 })
 export class SharedModule {}

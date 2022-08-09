@@ -28,13 +28,13 @@ export class MainPageComponent implements OnInit, OnDestroy {
   stopPolling$ = new Subject();
   stopListen$ = new Subject();
   btnClickedObservable$ = new BehaviorSubject(false);
-
   zipCodeSelect$ = this.foreCastQuery.zipCode$;
   countryCodeSelect$ = this.foreCastQuery.countryCode$;
   currentBtnConfig: BtnConfig;
+  currentConditions = [];
   currentZipCode = "";
   currentCountryCode = "";
-  currentConditions = [];
+
   loading = false;
 
   constructor(
@@ -50,7 +50,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
       isLoading: false,
     });
     this.syncSearchWeatherParams$();
-    this.pollingApiCall();
+    this.weatherConditionsAutoRefresh();
   }
 
   setBtnState(config: BtnConfig): void {
@@ -85,14 +85,14 @@ export class MainPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  pollingApiCall() {
+  weatherConditionsAutoRefresh() {
     interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
         tap(() => {
           if (this.currentZipCode != "" && this.currentCountryCode != "")
             this.loading = true;
         }),
-        startWith(0),
+        // startWith(0),
         skipWhile(
           () => this.currentZipCode == "" && this.currentCountryCode == ""
         ),
@@ -111,7 +111,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
           });
           return throwError(err);
         }),
-        // retryWhen((error$) => error$.pipe(delay(1000), take(6))),
         takeUntil(this.stopPolling$)
       )
       .subscribe((currentWeather) => {
@@ -133,19 +132,23 @@ export class MainPageComponent implements OnInit, OnDestroy {
           },
         ];
 
-        timer(CONSTANTS.RESET_TIMER)
-          .pipe(
-            tap(() => {
-              this.setBtnState({
-                label: "Add location",
-                btnClass: "btn btn-primary",
-                isDisabled: false,
-                isLoading: false,
-              });
-            })
-          )
-          .subscribe();
+        this.resetBtnDefaultState();
       });
+  }
+
+  resetBtnDefaultState() {
+    timer(CONSTANTS.RESET_TIME)
+      .pipe(
+        tap(() => {
+          this.setBtnState({
+            label: "Add location",
+            btnClass: "btn btn-primary",
+            isDisabled: false,
+            isLoading: false,
+          });
+        })
+      )
+      .subscribe();
   }
 
   ngOnDestroy() {

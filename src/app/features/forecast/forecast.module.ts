@@ -19,10 +19,10 @@ import { ReactiveFormsModule } from "@angular/forms";
   ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
+    RouterModule.forChild(appRoutes),
     SharedModule,
     CountrySelectionModule,
-    RouterModule.forChild(appRoutes),
-    ReactiveFormsModule,
   ],
   providers: [LocationService, WeatherService],
   exports: [RouterModule],

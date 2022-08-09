@@ -46,7 +46,7 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
   }
 
   identify(index, item) {
-    return item.name;
+    return item.countryCode;
   }
 
   getCurrentCountries() {
@@ -64,9 +64,9 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
       .valueChanges.pipe(
         filter((textValue) => textValue !== ""),
         map((textValue) => textValue.toLowerCase()),
-        takeUntil(this.destroy$),
         debounceTime(400),
         distinctUntilChanged(),
+        takeUntil(this.destroy$),
         switchMap((val) => this.onSearch(val))
       )
       .subscribe();
@@ -83,7 +83,6 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
     this.countrySelectionFrom
       .get("countryForm")
       .setValue(entry.name, { emitEvent: false });
-
     this.foreCastStoreService.setCountryCode(entry.countryCode);
     this.filteredCountries = [];
   }

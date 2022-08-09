@@ -13,6 +13,10 @@ export class CurrentConditionsComponent implements OnInit {
 
   ngOnInit() {}
 
+  identify(index, item) {
+    return item.id;
+  }
+
   showForecast(location) {
     this.router.navigate([
       "/forecast",

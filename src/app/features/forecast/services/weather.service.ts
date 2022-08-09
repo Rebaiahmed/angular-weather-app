@@ -9,16 +9,15 @@ import { Weather } from "../models";
 @Injectable()
 export class WeatherService {
   private currentConditions = [];
-  currentConditions$;
   constructor(private http: HttpClient) {}
 
   addCurrentConditions(
-    zipcode: string,
+    zipCode: string,
     countryCode: string
   ): Observable<Weather> {
     // Here we make a request to get the current conditions data from the API. Note the use of backticks and an expression to insert the zipcode
     return this.http.get<Weather>(
-      `${environment.API_URL}/weather?zip=${zipcode},${countryCode}&units=imperial&APPID=${environment.APPID}`
+      `${environment.API_URL}/weather?zip=${zipCode},${countryCode}&units=imperial&APPID=${environment.APPID}`
     );
   }
 
