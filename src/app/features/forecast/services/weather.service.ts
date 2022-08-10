@@ -25,23 +25,23 @@ export class WeatherService implements OnDestroy {
         return this.getCurrentConditionsApiCall(val);
       })
     );
-
-    /*   this.pollingWeatherConditions$=interval(CONSTANTS.POLLING_INTERVAL).pipe(
-      tap(console.log),
-      switchMap(() => this.getCurrentConditionsApiCall(null)),
-      catchError((err) => {
-        return throwError(err);
-      }),
-      takeUntil(this.stopPolling$)
-    ); */
   }
 
   getCurrentConditionsApiCall(
     conditionSearchParams: ConditionParams
   ): Observable<Weather> {
     // Here we make a request to get the current conditions data from the API. Note the use of backticks and an expression to insert the zipcode
+    const zipParams =
+      conditionSearchParams.zipCode != ""
+        ? `zip=${conditionSearchParams.zipCode}`
+        : "";
+    const countryParams =
+      conditionSearchParams.countryCode != ""
+        ? `${conditionSearchParams.countryCode}`
+        : "";
+
     return this.http.get<Weather>(
-      `${environment.API_URL}/weather?zip=${conditionSearchParams.zipCode},${conditionSearchParams.countryCode}&units=imperial&APPID=${environment.APPID}`
+      `${environment.API_URL}/weather?${zipParams}${countryParams}&units=imperial&APPID=${environment.APPID}`
     );
   }
 

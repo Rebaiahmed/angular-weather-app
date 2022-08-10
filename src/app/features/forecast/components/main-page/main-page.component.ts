@@ -1,5 +1,12 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { BehaviorSubject, interval, Subject, throwError, zip } from "rxjs";
+import {
+  BehaviorSubject,
+  interval,
+  Subject,
+  throwError,
+  zip,
+  combineLatest,
+} from "rxjs";
 import {
   catchError,
   filter,
@@ -11,7 +18,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { BtnConfig } from "../../../../shared/models";
 import { CONSTANTS } from "../../../../shared/utils/constants";
-import { ConditionParams } from "../../models";
+import { ConditionParams, Weather } from "../../models";
 import { LocationService, WeatherService } from "../../services";
 import { ForeCastQuery } from "../../state/forecast.store.query";
 
@@ -47,22 +54,36 @@ export class MainPageComponent implements OnInit, OnDestroy {
     });
     this.syncSearchWeatherParams$();
 
+    this.refreshExistingWeatherData();
+  }
+
+  refreshExistingWeatherData() {
     interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
         mergeMap(() => this.weatherService.pollingWeatherConditions$),
         takeUntil(this.stopPolling$)
       )
-      .subscribe((weatherConditions) => {
-        console.log("wether conditions", weatherConditions);
-        this.currentConditions.push({
-          data: weatherConditions,
-          zip: this.currentZipCode,
-          countryCode: this.currentCountryCode,
-          /*     imageSrc: this.weatherService.getWeatherIcon(
-            weatherConditions.weather[0].id
-          ), */
-        });
+      .subscribe((weatherConditions: Weather) => {
+        this.setNewData(weatherConditions);
       });
+  }
+
+  setNewData(weatherConditions: Weather) {
+    const objIndex = this.currentConditions.findIndex(
+      (obj) => obj.data.name == weatherConditions.name
+    );
+    if (objIndex != -1) {
+      this.currentConditions[objIndex].data = weatherConditions;
+    } else {
+      this.currentConditions.push({
+        data: weatherConditions,
+        zip: this.currentZipCode,
+        countryCode: this.currentCountryCode,
+        imageSrc: this.weatherService.getWeatherIcon(
+          weatherConditions.weather[0].id
+        ),
+      });
+    }
   }
 
   setBtnState(config: BtnConfig): void {
@@ -71,7 +92,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   syncSearchWeatherParams$() {
     const id = uuidv4();
-    zip(
+    combineLatest(
       this.zipCodeSelect$,
       this.countryCodeSelect$,
       this.btnClickedObservable$
