@@ -1,23 +1,18 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import {
-  BehaviorSubject,
-  interval,
-  Subject,
-  throwError,
-  timer,
-  zip,
-} from "rxjs";
+import { BehaviorSubject, interval, Subject, throwError, zip } from "rxjs";
 import {
   catchError,
-  skipWhile,
-  startWith,
-  switchMap,
+  filter,
+  mergeMap,
+  take,
   takeUntil,
   tap,
 } from "rxjs/operators";
+import { v4 as uuidv4 } from "uuid";
 import { BtnConfig } from "../../../../shared/models";
 import { CONSTANTS } from "../../../../shared/utils/constants";
-import { WeatherService } from "../../services";
+import { ConditionParams } from "../../models";
+import { LocationService, WeatherService } from "../../services";
 import { ForeCastQuery } from "../../state/forecast.store.query";
 
 @Component({
@@ -39,6 +34,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private weatherService: WeatherService,
+    private locationService: LocationService,
     private foreCastQuery: ForeCastQuery
   ) {}
 
@@ -50,7 +46,23 @@ export class MainPageComponent implements OnInit, OnDestroy {
       isLoading: false,
     });
     this.syncSearchWeatherParams$();
-    this.weatherConditionsAutoRefresh();
+
+    interval(CONSTANTS.POLLING_INTERVAL)
+      .pipe(
+        mergeMap(() => this.weatherService.pollingWeatherConditions$),
+        takeUntil(this.stopPolling$)
+      )
+      .subscribe((weatherConditions) => {
+        console.log("wether conditions", weatherConditions);
+        this.currentConditions.push({
+          data: weatherConditions,
+          zip: this.currentZipCode,
+          countryCode: this.currentCountryCode,
+          /*     imageSrc: this.weatherService.getWeatherIcon(
+            weatherConditions.weather[0].id
+          ), */
+        });
+      });
   }
 
   setBtnState(config: BtnConfig): void {
@@ -58,6 +70,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   syncSearchWeatherParams$() {
+    const id = uuidv4();
     zip(
       this.zipCodeSelect$,
       this.countryCodeSelect$,
@@ -67,11 +80,33 @@ export class MainPageComponent implements OnInit, OnDestroy {
         takeUntil(this.stopListen$),
         catchError((err) => {
           return throwError(err);
-        })
+        }),
+        filter((results) => results[0] !== "" || results[1] !== ""),
+        tap((value) => {
+          this.locationService.addLocation({
+            zipCode: value[0],
+            countryCode: value[1],
+            uid: id,
+          } as ConditionParams);
+        }),
+        mergeMap((results) =>
+          this.weatherService.getCurrentConditionsApiCall({
+            zipCode: results[0],
+            countryCode: results[1],
+          } as ConditionParams)
+        ),
+        takeUntil(this.stopListen$)
       )
-      .subscribe((results) => {
-        this.currentZipCode = results[0];
-        this.currentCountryCode = results[1];
+      .subscribe((currentWeather) => {
+        this.currentConditions.push({
+          id: id,
+          data: currentWeather,
+          zip: this.currentZipCode,
+          countryCode: this.currentCountryCode,
+          imageSrc: this.weatherService.getWeatherIcon(
+            currentWeather.weather[0].id
+          ),
+        });
       });
   }
 
@@ -85,60 +120,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  weatherConditionsAutoRefresh() {
-    interval(CONSTANTS.POLLING_INTERVAL)
-      .pipe(
-        tap(() => {
-          if (this.currentZipCode != "" && this.currentCountryCode != "")
-            this.loading = true;
-        }),
-        // startWith(0),
-        skipWhile(
-          () => this.currentZipCode == "" && this.currentCountryCode == ""
-        ),
-        switchMap(() =>
-          this.weatherService.addCurrentConditions(
-            this.currentZipCode,
-            this.currentCountryCode
-          )
-        ),
-        catchError((err) => {
-          this.loading = false;
-          this.setBtnState({
-            ...this.currentBtnConfig,
-            isLoading: false,
-            isDisabled: false,
-          });
-          return throwError(err);
-        }),
-        takeUntil(this.stopPolling$)
-      )
-      .subscribe((currentWeather) => {
-        this.loading = false;
-        this.setBtnState({
-          label: "Done",
-          btnClass: "btn btn-success",
-          isDisabled: false,
-          isLoading: false,
-        });
-        this.currentConditions = [
-          {
-            data: currentWeather,
-            zip: this.currentZipCode,
-            countryCode: this.currentCountryCode,
-            imageSrc: this.weatherService.getWeatherIcon(
-              currentWeather.weather[0].id
-            ),
-          },
-        ];
-
-        this.resetBtnDefaultState();
-      });
-  }
-
   resetBtnDefaultState() {
-    timer(CONSTANTS.RESET_TIME)
+    interval(CONSTANTS.RESET_TIME)
       .pipe(
+        take(1),
         tap(() => {
           this.setBtnState({
             label: "Add location",

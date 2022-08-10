@@ -31,7 +31,6 @@ export class ZipcodeEntryComponent implements OnInit, OnDestroy {
       .subscribe((result) => {
         if (result[0] == "VALID") {
           this.foreCastStoreService.setZipCode(result[1].zipCodeControl);
-          this.service.addLocation(result[1].zipCodeControl);
         }
       });
   }
@@ -47,8 +46,6 @@ export class ZipcodeEntryComponent implements OnInit, OnDestroy {
       ),
     });
   }
-
-
 
   ngOnDestroy() {
     this.destroySubscription$.next();

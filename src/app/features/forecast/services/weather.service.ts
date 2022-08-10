@@ -1,35 +1,59 @@
-import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Injectable, OnDestroy } from "@angular/core";
+import { from, interval, Observable, Subject, throwError } from "rxjs";
 
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 
 import { environment } from "../../../../environments/environment";
-import { Weather } from "../models";
+import { ConditionParams, Weather } from "../models";
+import {
+  catchError,
+  switchMap,
+  takeUntil,
+  tap,
+  concatMap,
+} from "rxjs/operators";
+import { CONSTANTS } from "../../../shared/utils/constants";
 
 @Injectable()
-export class WeatherService {
+export class WeatherService implements OnDestroy {
+  stopPolling$ = new Subject();
+  pollingWeatherConditions$;
   private currentConditions = [];
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.pollingWeatherConditions$ = from(this.currentConditions).pipe(
+      concatMap((val) => {
+        return this.getCurrentConditionsApiCall(val);
+      })
+    );
 
-  addCurrentConditions(
-    zipCode: string,
-    countryCode: string
+    /*   this.pollingWeatherConditions$=interval(CONSTANTS.POLLING_INTERVAL).pipe(
+      tap(console.log),
+      switchMap(() => this.getCurrentConditionsApiCall(null)),
+      catchError((err) => {
+        return throwError(err);
+      }),
+      takeUntil(this.stopPolling$)
+    ); */
+  }
+
+  getCurrentConditionsApiCall(
+    conditionSearchParams: ConditionParams
   ): Observable<Weather> {
     // Here we make a request to get the current conditions data from the API. Note the use of backticks and an expression to insert the zipcode
     return this.http.get<Weather>(
-      `${environment.API_URL}/weather?zip=${zipCode},${countryCode}&units=imperial&APPID=${environment.APPID}`
+      `${environment.API_URL}/weather?zip=${conditionSearchParams.zipCode},${conditionSearchParams.countryCode}&units=imperial&APPID=${environment.APPID}`
     );
   }
 
-  removeCurrentConditions(zipCode: string) {
-    for (let i in this.currentConditions) {
-      if (this.currentConditions[i].zip == zipCode)
-        this.currentConditions.splice(+i, 1);
-    }
+  addSavedWeatherCondition(conditionParams: ConditionParams) {
+    this.currentConditions.push(conditionParams);
   }
 
-  getCurrentConditions(): any[] {
-    return this.currentConditions;
+  removeCurrentConditions(uid: string) {
+    for (let i in this.currentConditions) {
+      if (this.currentConditions[i].uid === uid)
+        this.currentConditions.splice(+i, 1);
+    }
   }
 
   getForecast(zipCode: string, countryCode: string): Observable<Weather[]> {
@@ -52,5 +76,10 @@ export class WeatherService {
     else if (id === 741 || id === 761)
       return environment.ICON_URL + "art_fog.png";
     else return environment.ICON_URL + "art_clear.png";
+  }
+
+  ngOnDestroy() {
+    this.stopPolling$.next();
+    this.stopPolling$.complete();
   }
 }
