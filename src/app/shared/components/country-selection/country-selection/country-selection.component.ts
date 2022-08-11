@@ -26,7 +26,6 @@ import { CountrySelectionService } from "../country.service";
 })
 export class CountrySelectionComponent implements OnInit, OnDestroy {
   @Output() countrySelected$ = new EventEmitter<Country>();
-
   destroy$ = new Subject();
   unsubscribe$ = new Subject();
   countrySelectionFrom = new FormGroup({
@@ -83,7 +82,8 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
     this.countrySelectionFrom
       .get("countryForm")
       .setValue(entry.name, { emitEvent: false });
-    this.foreCastStoreService.setCountryCode(entry.countryCode);
+    //this.foreCastStoreService.setCountryCode(entry.countryCode);
+    this.countrySelected$.emit(entry.countryCode);
     this.filteredCountries = [];
   }
 

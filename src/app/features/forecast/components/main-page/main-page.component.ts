@@ -1,21 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import {
-  BehaviorSubject,
-  EMPTY,
-  interval,
-  Subject,
-  throwError,
-  timer,
-  zip,
-} from "rxjs";
-import {
-  catchError,
-  filter,
-  mergeMap,
-  share,
-  takeUntil,
-  tap,
-} from "rxjs/operators";
+import { BehaviorSubject, EMPTY, interval, Subject, timer } from "rxjs";
+import { catchError, mergeMap, share, takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 import { BtnConfig, Status } from "../../../../shared/models";
 import { CONSTANTS } from "../../../../shared/utils/constants";
@@ -52,8 +37,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
       isLoading: false,
       status: Status.Initial,
     });
-    this.syncSearchWeatherParams$();
-
     this.refreshExistingWeatherData();
   }
 
@@ -97,58 +80,12 @@ export class MainPageComponent implements OnInit, OnDestroy {
     this.currentBtnConfig = config;
   }
 
-  syncSearchWeatherParams$() {
-    const id = uuidv4();
-    zip(
-      this.zipCodeSelect$,
-      this.countryCodeSelect$,
-      this.btnClickedObservable$
-    )
-      .pipe(
-        takeUntil(this.stopListen$),
-        catchError((err) => {
-          return throwError(err);
-        }),
-        filter((results) => results[0] !== "" || results[1] !== ""),
-        tap((value) => {
-          this.currentZipCode = value[0];
-          this.currentCountryCode = value[1];
-          this.setBtnState({
-            btnClass: "btn btn-primary",
-            isLoading: true,
-            status: Status.Loading,
-          });
-        }),
-        mergeMap((results) =>
-          this.weatherService.getCurrentConditionsApiCall({
-            zipCode: results[0],
-            countryCode: results[1],
-          } as ConditionParams)
-        ),
-        takeUntil(this.stopListen$)
-      )
-      .subscribe((currentWeather) => {
-        this.currentConditions.push({
-          id: id,
-          data: currentWeather,
-          zip: this.currentZipCode,
-          countryCode: this.currentCountryCode,
-          imageSrc: this.weatherService.getWeatherIcon(
-            currentWeather.weather[0].id
-          ),
-        });
-        this.locationService.addLocation({
-          zipCode: this.currentZipCode,
-          countryCode: this.currentCountryCode,
-          uid: id,
-        } as ConditionParams);
-        this.setBtnState({
-          btnClass: "btn btn-success",
-          isLoading: false,
-          status: Status.Done,
-        });
-        this.resetButtonInitialState();
-      });
+  getRecentZipCodeValue($event) {
+    this.currentZipCode = $event;
+  }
+
+  getRecentCountryCode($event) {
+    this.currentCountryCode = $event;
   }
 
   resetButtonInitialState() {
@@ -164,7 +101,42 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   btnClicked($event) {
-    this.btnClickedObservable$.next(true);
+    const id = uuidv4();
+    if (this.currentZipCode != "" && this.currentCountryCode != "") {
+      this.setBtnState({
+        btnClass: "btn btn-primary",
+        isLoading: true,
+        status: Status.Loading,
+      });
+      this.weatherService
+        .getCurrentConditionsApiCall({
+          zipCode: this.currentZipCode,
+          countryCode: this.currentCountryCode,
+        } as ConditionParams)
+        .pipe(takeUntil(this.stopListen$))
+        .subscribe((currentWeather) => {
+          this.currentConditions.push({
+            id: id,
+            data: currentWeather,
+            zip: this.currentZipCode,
+            countryCode: this.currentCountryCode,
+            imageSrc: this.weatherService.getWeatherIcon(
+              currentWeather.weather[0].id
+            ),
+          });
+          this.locationService.addLocation({
+            zipCode: this.currentZipCode,
+            countryCode: this.currentCountryCode,
+            uid: id,
+          } as ConditionParams);
+          this.setBtnState({
+            btnClass: "btn btn-success",
+            isLoading: false,
+            status: Status.Done,
+          });
+          this.resetButtonInitialState();
+        });
+    }
   }
 
   ngOnDestroy() {

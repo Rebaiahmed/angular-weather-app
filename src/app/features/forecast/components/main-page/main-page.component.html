@@ -7,10 +7,13 @@
   </div>
   <div class="row well">
     <div class="col-md-6">
-      <app-zipcode-entry> </app-zipcode-entry>
+      <app-zipcode-entry (newZipCode)="getRecentZipCodeValue($event)">
+      </app-zipcode-entry>
     </div>
     <div class="col-md-6">
-      <app-country-selection></app-country-selection>
+      <app-country-selection
+        (countrySelected$)="getRecentCountryCode($event)"
+      ></app-country-selection>
     </div>
 
     <div class="float-left" style="margin-top: 143px">
@@ -23,7 +26,7 @@
       >
       </app-btn-save>
 
-      <ng-template #add class="btn btn-primary"> Add location </ng-template
+      <ng-template #add> Add location </ng-template
       ><ng-template #adding> Adding ... </ng-template
       ><ng-template #done>
         <img

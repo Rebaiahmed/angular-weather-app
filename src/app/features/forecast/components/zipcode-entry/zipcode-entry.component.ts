@@ -1,7 +1,13 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { combineLatest, Subject } from "rxjs";
-import { debounceTime, takeUntil } from "rxjs/operators";
+import { debounceTime, takeUntil, distinctUntilChanged } from "rxjs/operators";
 import { LocationService } from "../../services";
 import { ForeCastStoreService } from "../../state/forecast.store.service";
 @Component({
@@ -10,11 +16,9 @@ import { ForeCastStoreService } from "../../state/forecast.store.service";
 })
 export class ZipcodeEntryComponent implements OnInit, OnDestroy {
   searchWeatherForm: FormGroup;
+  @Output() newZipCode = new EventEmitter<string>();
   private destroySubscription$ = new Subject();
-  constructor(
-    private service: LocationService,
-    private foreCastStoreService: ForeCastStoreService
-  ) {
+  constructor(private foreCastStoreService: ForeCastStoreService) {
     this.initZipCdeForm();
   }
 
@@ -27,10 +31,17 @@ export class ZipcodeEntryComponent implements OnInit, OnDestroy {
       this.searchWeatherForm.statusChanges,
       this.searchWeatherForm.valueChanges
     )
-      .pipe(debounceTime(500), takeUntil(this.destroySubscription$))
+      .pipe(
+        debounceTime(500),
+
+        distinctUntilChanged(),
+        takeUntil(this.destroySubscription$)
+      )
       .subscribe((result) => {
         if (result[0] == "VALID") {
-          this.foreCastStoreService.setZipCode(result[1].zipCodeControl);
+          //alert("emit");
+          // this.foreCastStoreService.setZipCode(result[1].zipCodeControl);
+          this.newZipCode.emit(result[1].zipCodeControl);
         }
       });
   }
