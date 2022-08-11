@@ -12,10 +12,9 @@ import {
   catchError,
   filter,
   mergeMap,
-  retry,
+  share,
   takeUntil,
   tap,
-  take,
 } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 import { BtnConfig, Status } from "../../../../shared/models";
@@ -62,8 +61,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
     interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
         mergeMap(() => this.weatherService.pollingWeatherConditions$),
+        share(),
         takeUntil(this.stopPolling$),
-        retry(3),
         catchError((err) => {
           return EMPTY;
         })
@@ -78,7 +77,10 @@ export class MainPageComponent implements OnInit, OnDestroy {
       (obj) => obj.data.name == weatherConditions.name
     );
     if (objIndex != -1) {
-      this.currentConditions[objIndex].data = weatherConditions;
+      this.currentConditions[objIndex] = {
+        ...this.currentConditions[objIndex],
+        data: weatherConditions,
+      };
     } else {
       this.currentConditions.push({
         data: weatherConditions,
@@ -109,11 +111,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
         }),
         filter((results) => results[0] !== "" || results[1] !== ""),
         tap((value) => {
-          this.locationService.addLocation({
-            zipCode: value[0],
-            countryCode: value[1],
-            uid: id,
-          } as ConditionParams);
           this.currentZipCode = value[0];
           this.currentCountryCode = value[1];
           this.setBtnState({
@@ -140,20 +137,29 @@ export class MainPageComponent implements OnInit, OnDestroy {
             currentWeather.weather[0].id
           ),
         });
+        this.locationService.addLocation({
+          zipCode: this.currentZipCode,
+          countryCode: this.currentCountryCode,
+          uid: id,
+        } as ConditionParams);
         this.setBtnState({
           btnClass: "btn btn-success",
           isLoading: false,
           status: Status.Done,
         });
-        timer(CONSTANTS.RESET_TIME)
-          .pipe(takeUntil(this.stopListen$))
-          .subscribe(() => {
-            this.setBtnState({
-              btnClass: "btn btn-primary",
-              isLoading: false,
-              status: Status.Initial,
-            });
-          });
+        this.resetButtonInitialState();
+      });
+  }
+
+  resetButtonInitialState() {
+    timer(CONSTANTS.RESET_TIME)
+      .pipe(takeUntil(this.stopListen$))
+      .subscribe(() => {
+        this.setBtnState({
+          btnClass: "btn btn-primary",
+          isLoading: false,
+          status: Status.Initial,
+        });
       });
   }
 
