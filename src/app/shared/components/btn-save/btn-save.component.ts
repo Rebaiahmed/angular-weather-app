@@ -3,9 +3,13 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
+  OnInit,
   Output,
+  SimpleChanges,
+  TemplateRef,
 } from "@angular/core";
-import { BtnConfig } from "../../models/btn-config";
+import { BtnConfig, Status } from "../../models/btn-config";
 
 @Component({
   selector: "app-btn-save",
@@ -13,10 +17,33 @@ import { BtnConfig } from "../../models/btn-config";
   styleUrls: ["./btn-save.component.scss"],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BtnSaveComponent {
+export class BtnSaveComponent implements OnInit, OnChanges {
   @Input() btnConfig: BtnConfig;
 
+  @Input() initialTemplate: TemplateRef<any>;
+  @Input() loadingTemplate: TemplateRef<any>;
+  @Input() doneTemplate: TemplateRef<any>;
+  currentTemplate: TemplateRef<any>;
+
   @Output() onClick = new EventEmitter<boolean>();
+
+  ngOnInit() {
+    this.currentTemplate = this.initialTemplate;
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    switch (changes.btnConfig.currentValue.status) {
+      case Status.Initial:
+        this.currentTemplate = this.initialTemplate;
+        break;
+      case Status.Loading:
+        this.currentTemplate = this.loadingTemplate;
+        break;
+      case Status.Done:
+        this.currentTemplate = this.doneTemplate;
+        break;
+    }
+  }
 
   constructor() {}
 

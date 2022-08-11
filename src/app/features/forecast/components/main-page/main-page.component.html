@@ -15,9 +15,24 @@
 
     <div class="float-left" style="margin-top: 143px">
       <app-btn-save
-        (onClick)="btnClicked($event)"
+        [initialTemplate]="add"
+        [loadingTemplate]="adding"
+        [doneTemplate]="done"
         [btnConfig]="currentBtnConfig"
-      ></app-btn-save>
+        (onClick)="btnClicked($event)"
+      >
+      </app-btn-save>
+
+      <ng-template #add class="btn btn-primary"> Add location </ng-template
+      ><ng-template #adding> Adding ... </ng-template
+      ><ng-template #done>
+        <img
+          src="assets/icons/done.png"
+          class="check-icon"
+          style="width: 24px; height: 24px"
+        />
+        Done
+      </ng-template>
     </div>
     <br />
   </div>

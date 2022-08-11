@@ -1,6 +1,11 @@
+export enum Status {
+  Initial = "INITIAL",
+  Loading = "loading",
+  Done = "DONE",
+}
+
 export interface BtnConfig {
-  label: string;
   btnClass: "btn btn-primary" | "btn btn-success";
-  isDisabled: boolean;
   isLoading: boolean;
+  status: Status;
 }

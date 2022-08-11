@@ -41,7 +41,7 @@ export class ZipcodeEntryComponent implements OnInit, OnDestroy {
         "",
         Validators.compose([
           Validators.required,
-          Validators.pattern("[0-9]{5}"),
+          Validators.pattern("[0-9]{4,8}"),
         ])
       ),
     });

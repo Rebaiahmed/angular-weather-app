@@ -37,7 +37,7 @@ export class WeatherService implements OnDestroy {
         : "";
     const countryParams =
       conditionSearchParams.countryCode != ""
-        ? `${conditionSearchParams.countryCode}`
+        ? `,${conditionSearchParams.countryCode}`
         : "";
 
     return this.http.get<Weather>(

@@ -1,9 +1,8 @@
 <button
+  (click)="onClickButton()"
   type="button"
   [ngClass]="btnConfig.btnClass"
-  (click)="onClickButton()"
-  [disabled]="btnConfig.isDisabled"
+  [disabled]="btnConfig.isLoading"
 >
-  <span [innerHTML]="btnConfig?.label"></span>
-  <i class="fa fa-spinner fa-spin" *ngIf="btnConfig.isLoading"> </i>
+  <ng-container *ngTemplateOutlet="currentTemplate"> </ng-container>
 </button>

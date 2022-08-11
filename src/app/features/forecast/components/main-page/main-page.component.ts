@@ -1,22 +1,22 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import {
   BehaviorSubject,
+  EMPTY,
   interval,
   Subject,
   throwError,
   zip,
-  combineLatest,
 } from "rxjs";
 import {
   catchError,
   filter,
   mergeMap,
-  take,
+  retry,
   takeUntil,
   tap,
 } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
-import { BtnConfig } from "../../../../shared/models";
+import { BtnConfig, Status } from "../../../../shared/models";
 import { CONSTANTS } from "../../../../shared/utils/constants";
 import { ConditionParams, Weather } from "../../models";
 import { LocationService, WeatherService } from "../../services";
@@ -47,10 +47,9 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setBtnState({
-      label: "Add location",
       btnClass: "btn btn-primary",
-      isDisabled: false,
       isLoading: false,
+      status: Status.Initial,
     });
     this.syncSearchWeatherParams$();
 
@@ -61,7 +60,11 @@ export class MainPageComponent implements OnInit, OnDestroy {
     interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
         mergeMap(() => this.weatherService.pollingWeatherConditions$),
-        takeUntil(this.stopPolling$)
+        takeUntil(this.stopPolling$),
+        retry(3),
+        catchError((err) => {
+          return EMPTY;
+        })
       )
       .subscribe((weatherConditions: Weather) => {
         this.setNewData(weatherConditions);
@@ -92,7 +95,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   syncSearchWeatherParams$() {
     const id = uuidv4();
-    combineLatest(
+    zip(
       this.zipCodeSelect$,
       this.countryCodeSelect$,
       this.btnClickedObservable$
@@ -109,6 +112,13 @@ export class MainPageComponent implements OnInit, OnDestroy {
             countryCode: value[1],
             uid: id,
           } as ConditionParams);
+          this.currentZipCode = value[0];
+          this.currentCountryCode = value[1];
+          this.setBtnState({
+            btnClass: "btn btn-primary",
+            isLoading: true,
+            status: Status.Loading,
+          });
         }),
         mergeMap((results) =>
           this.weatherService.getCurrentConditionsApiCall({
@@ -128,33 +138,16 @@ export class MainPageComponent implements OnInit, OnDestroy {
             currentWeather.weather[0].id
           ),
         });
+        this.setBtnState({
+          btnClass: "btn btn-success",
+          isLoading: false,
+          status: Status.Done,
+        });
       });
   }
 
   btnClicked($event) {
     this.btnClickedObservable$.next(true);
-    this.setBtnState({
-      ...this.currentBtnConfig,
-      label: "Adding ...",
-      isDisabled: true,
-      isLoading: true,
-    });
-  }
-
-  resetBtnDefaultState() {
-    interval(CONSTANTS.RESET_TIME)
-      .pipe(
-        take(1),
-        tap(() => {
-          this.setBtnState({
-            label: "Add location",
-            btnClass: "btn btn-primary",
-            isDisabled: false,
-            isLoading: false,
-          });
-        })
-      )
-      .subscribe();
   }
 
   ngOnDestroy() {
