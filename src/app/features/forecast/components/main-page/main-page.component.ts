@@ -5,6 +5,7 @@ import {
   interval,
   Subject,
   throwError,
+  timer,
   zip,
 } from "rxjs";
 import {
@@ -14,6 +15,7 @@ import {
   retry,
   takeUntil,
   tap,
+  take,
 } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 import { BtnConfig, Status } from "../../../../shared/models";
@@ -143,6 +145,15 @@ export class MainPageComponent implements OnInit, OnDestroy {
           isLoading: false,
           status: Status.Done,
         });
+        timer(CONSTANTS.RESET_TIME)
+          .pipe(takeUntil(this.stopListen$))
+          .subscribe(() => {
+            this.setBtnState({
+              btnClass: "btn btn-primary",
+              isLoading: false,
+              status: Status.Initial,
+            });
+          });
       });
   }
 

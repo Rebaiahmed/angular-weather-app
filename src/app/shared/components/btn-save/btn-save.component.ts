@@ -41,6 +41,7 @@ export class BtnSaveComponent implements OnInit, OnChanges {
         break;
       case Status.Done:
         this.currentTemplate = this.doneTemplate;
+
         break;
     }
   }
