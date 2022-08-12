@@ -1,18 +1,11 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { from, interval, Observable, Subject, throwError } from "rxjs";
+import { from, Observable, Subject } from "rxjs";
 
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 
+import { concatMap } from "rxjs/operators";
 import { environment } from "../../../../environments/environment";
 import { ConditionParams, Weather } from "../models";
-import {
-  catchError,
-  switchMap,
-  takeUntil,
-  tap,
-  concatMap,
-} from "rxjs/operators";
-import { CONSTANTS } from "../../../shared/utils/constants";
 
 @Injectable()
 export class WeatherService implements OnDestroy {

@@ -22,12 +22,11 @@ export class LocationService {
 
   removeLocation(conditionParams: ConditionParams) {
     let index = this.locations.findIndex(
-      (value) => value.uid == conditionParams.uid
+      (value) => value.id == conditionParams.id
     );
     if (index !== -1) {
       this.locations.splice(index, 1);
       localStorage.setItem(LOCATIONS, JSON.stringify(this.locations));
-      this.weatherService.removeCurrentConditions(conditionParams.uid);
     }
   }
 }

@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { Weather } from "../../models/weather";
+import { LocationService } from "../../services";
 
 @Component({
   selector: "app-current-conditions",
@@ -9,7 +10,10 @@ import { Weather } from "../../models/weather";
 })
 export class CurrentConditionsComponent implements OnInit {
   @Input() weatherConditions: Weather[] = [];
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private locationService: LocationService
+  ) {}
 
   ngOnInit() {}
 

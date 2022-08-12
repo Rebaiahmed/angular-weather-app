@@ -6,7 +6,6 @@ import { BtnConfig, Status } from "../../../../shared/models";
 import { CONSTANTS } from "../../../../shared/utils/constants";
 import { ConditionParams, Weather } from "../../models";
 import { LocationService, WeatherService } from "../../services";
-import { ForeCastQuery } from "../../state/forecast.store.query";
 
 @Component({
   selector: "app-main-page",
@@ -16,8 +15,6 @@ export class MainPageComponent implements OnInit, OnDestroy {
   stopPolling$ = new Subject();
   stopListen$ = new Subject();
   btnClickedObservable$ = new BehaviorSubject(false);
-  zipCodeSelect$ = this.foreCastQuery.zipCode$;
-  countryCodeSelect$ = this.foreCastQuery.countryCode$;
   currentBtnConfig: BtnConfig;
   currentConditions = [];
   currentZipCode = "";
@@ -27,8 +24,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private weatherService: WeatherService,
-    private locationService: LocationService,
-    private foreCastQuery: ForeCastQuery
+    private locationService: LocationService
   ) {}
 
   ngOnInit(): void {
@@ -127,7 +123,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
           this.locationService.addLocation({
             zipCode: this.currentZipCode,
             countryCode: this.currentCountryCode,
-            uid: id,
+            id: id,
           } as ConditionParams);
           this.setBtnState({
             btnClass: "btn btn-success",

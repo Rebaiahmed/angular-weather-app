@@ -1,5 +1,5 @@
 export interface ConditionParams {
-  uid: string;
+  id: string;
   zipCode?: string;
   countryCode: string;
 }

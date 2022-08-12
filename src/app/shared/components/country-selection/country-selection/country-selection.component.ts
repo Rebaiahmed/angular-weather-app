@@ -15,7 +15,6 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs/operators";
-import { ForeCastStoreService } from "../../../../features/forecast/state/forecast.store.service";
 import { Country } from "../../../models";
 import { CountrySelectionService } from "../country.service";
 
@@ -34,10 +33,7 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
   countries: Country[] = [];
   filteredCountries: Country[] = [];
 
-  constructor(
-    private service: CountrySelectionService,
-    private foreCastStoreService: ForeCastStoreService
-  ) {}
+  constructor(private service: CountrySelectionService) {}
 
   ngOnInit(): void {
     this.getCurrentCountries();
@@ -82,7 +78,6 @@ export class CountrySelectionComponent implements OnInit, OnDestroy {
     this.countrySelectionFrom
       .get("countryForm")
       .setValue(entry.name, { emitEvent: false });
-    //this.foreCastStoreService.setCountryCode(entry.countryCode);
     this.countrySelected$.emit(entry.countryCode);
     this.filteredCountries = [];
   }
