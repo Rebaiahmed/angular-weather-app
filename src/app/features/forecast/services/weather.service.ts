@@ -1,9 +1,9 @@
 import { Injectable, OnDestroy } from "@angular/core";
-import { from, Observable, Subject } from "rxjs";
+import { from, Observable, Subject, throwError } from "rxjs";
 
 import { HttpClient } from "@angular/common/http";
 
-import { concatMap } from "rxjs/operators";
+import { catchError, concatMap } from "rxjs/operators";
 import { environment } from "../../../../environments/environment";
 import { ConditionParams, Weather } from "../models";
 
@@ -16,6 +16,9 @@ export class WeatherService implements OnDestroy {
     this.pollingWeatherConditions$ = from(this.currentConditions).pipe(
       concatMap((val) => {
         return this.getCurrentConditionsApiCall(val);
+      }),
+      catchError((err) => {
+        return throwError(err);
       })
     );
   }

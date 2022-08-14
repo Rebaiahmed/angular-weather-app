@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { BehaviorSubject, EMPTY, interval, Subject, timer } from "rxjs";
-import { catchError, mergeMap, share, takeUntil } from "rxjs/operators";
+import { BehaviorSubject, interval, Subject, throwError, timer } from "rxjs";
+import { catchError, retry, share, switchMap, takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
 import { BtnConfig, Status } from "../../../../shared/models";
 import { CONSTANTS } from "../../../../shared/utils/constants";
@@ -39,11 +39,12 @@ export class MainPageComponent implements OnInit, OnDestroy {
   refreshExistingWeatherData() {
     interval(CONSTANTS.POLLING_INTERVAL)
       .pipe(
-        mergeMap(() => this.weatherService.pollingWeatherConditions$),
+        switchMap(() => this.weatherService.pollingWeatherConditions$),
+        retry(),
         share(),
         takeUntil(this.stopPolling$),
         catchError((err) => {
-          return EMPTY;
+          return throwError(err);
         })
       )
       .subscribe((weatherConditions: Weather) => {
@@ -66,7 +67,9 @@ export class MainPageComponent implements OnInit, OnDestroy {
         zip: this.currentZipCode,
         countryCode: this.currentCountryCode,
         imageSrc: this.weatherService.getWeatherIcon(
-          weatherConditions.weather[0].id
+          weatherConditions?.weather?.length > 0
+            ? weatherConditions?.weather[0]?.id
+            : ""
         ),
       });
     }
@@ -109,7 +112,18 @@ export class MainPageComponent implements OnInit, OnDestroy {
           zipCode: this.currentZipCode,
           countryCode: this.currentCountryCode,
         } as ConditionParams)
-        .pipe(takeUntil(this.stopListen$))
+        .pipe(
+          takeUntil(this.stopListen$),
+          catchError((err) => {
+            alert("Error loading data with these params!");
+            this.setBtnState({
+              btnClass: "btn btn-primary",
+              isLoading: false,
+              status: Status.Initial,
+            });
+            return throwError(err);
+          })
+        )
         .subscribe((currentWeather) => {
           this.currentConditions.push({
             id: id,
